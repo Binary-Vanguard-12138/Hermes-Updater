@@ -1,24 +1,20 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
-import styled from "@emotion/styled";
+import { Link } from "react-router-dom";
 import * as Yup from "yup";
 import { Formik } from "formik";
 
 import {
-  Alert as MuiAlert,
   Button,
-  TextField as MuiTextField,
+  Grid,
+  Checkbox,
+  Typography,
+  FormControlLabel,
 } from "@mui/material";
-import { spacing } from "@mui/system";
 
 import useAuth from "../../hooks/useAuth";
-
-const Alert = styled(MuiAlert)(spacing);
-
-const TextField = styled(MuiTextField)(spacing);
+import { Alert, Divider, TextField } from "../common/styled";
 
 function SignUp() {
-  const navigate = useNavigate();
   const { signUp } = useAuth();
 
   return (
@@ -29,17 +25,18 @@ function SignUp() {
         email: "",
         password: "",
         confirmPassword: "",
+        acceptTerms: false,
         submit: false,
       }}
       validationSchema={Yup.object().shape({
-        firstName: Yup.string().max(255).required("First name is required"),
-        lastName: Yup.string().max(255).required("Last name is required"),
+        firstName: Yup.string().max(255).required("First Name is required"),
+        lastName: Yup.string().max(255).required("Last Name is required"),
         email: Yup.string()
           .email("Must be a valid email")
           .max(255)
           .required("Email is required"),
         password: Yup.string()
-          .min(12, "Must be at least 12 characters")
+          .min(8, "Must be at least 8 characters")
           .max(255)
           .required("Required"),
         confirmPassword: Yup.string().when("password", {
@@ -49,19 +46,17 @@ function SignUp() {
             "Both password need to be the same"
           ),
         }),
+        acceptTerms: Yup.boolean().oneOf(
+          [true],
+          "The terms and conditions must be accepted."
+        ),
       })}
       onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
         try {
-          signUp(
-            values.email,
-            values.password,
-            values.firstName,
-            values.lastName
-          );
-          navigate("/auth/sign-in");
+          const response = await signUp(values);
+          setErrors({ success: response.message });
         } catch (error) {
           const message = error.message || "Something went wrong";
-
           setStatus({ success: false });
           setErrors({ submit: message });
           setSubmitting(false);
@@ -79,34 +74,45 @@ function SignUp() {
       }) => (
         <form noValidate onSubmit={handleSubmit}>
           {errors.submit && (
-            <Alert mt={2} mb={1} severity="warning">
+            <Alert mt={2} mb={3} variant="outlined" severity="error">
               {errors.submit}
             </Alert>
           )}
-          <TextField
-            type="text"
-            name="firstName"
-            label="First name"
-            value={values.firstName}
-            error={Boolean(touched.firstName && errors.firstName)}
-            fullWidth
-            helperText={touched.firstName && errors.firstName}
-            onBlur={handleBlur}
-            onChange={handleChange}
-            my={3}
-          />
-          <TextField
-            type="text"
-            name="lastName"
-            label="Last name"
-            value={values.lastName}
-            error={Boolean(touched.lastName && errors.lastName)}
-            fullWidth
-            helperText={touched.lastName && errors.lastName}
-            onBlur={handleBlur}
-            onChange={handleChange}
-            my={3}
-          />
+          {errors.success && (
+            <Alert mt={2} mb={3} variant="outlined" severity="info">
+              {errors.success}
+            </Alert>
+          )}
+          <Grid container>
+            <Grid item xs={6} pr={2}>
+              <TextField
+                type="text"
+                name="firstName"
+                label="First Name"
+                value={values.firstName}
+                error={Boolean(touched.firstName && errors.firstName)}
+                fullWidth
+                helperText={touched.firstName && errors.firstName}
+                onBlur={handleBlur}
+                onChange={handleChange}
+                my={3}
+              />
+            </Grid>
+            <Grid item xs={6} pl={2}>
+              <TextField
+                type="text"
+                name="lastName"
+                label="Last Name"
+                value={values.lastName}
+                error={Boolean(touched.lastName && errors.lastName)}
+                fullWidth
+                helperText={touched.lastName && errors.lastName}
+                onBlur={handleBlur}
+                onChange={handleChange}
+                my={3}
+              />
+            </Grid>
+          </Grid>
           <TextField
             type="email"
             name="email"
@@ -143,6 +149,23 @@ function SignUp() {
             onChange={handleChange}
             my={3}
           />
+          <Grid item xs={12}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name="acceptTerms"
+                  checked={values.acceptTerms}
+                  color="primary"
+                />
+              }
+              label="Accept Terms"
+              error={Boolean(touched.acceptTerms && errors.acceptTerms)}
+              fullWidth
+              helperText={touched.acceptTerms && errors.acceptTerms}
+              onBlur={handleBlur}
+              onChange={handleChange}
+            />
+          </Grid>
           <Button
             type="submit"
             fullWidth
@@ -152,6 +175,13 @@ function SignUp() {
           >
             Sign up
           </Button>
+          <Divider my={6} />
+          <Typography align="center">
+            Do you have an account?
+            <Button component={Link} to="/auth/sign-in" color="primary">
+              Sign In
+            </Button>
+          </Typography>
         </form>
       )}
     </Formik>

@@ -67,7 +67,7 @@ const SidebarFooter = ({ ...rest }) => {
           )}
           {/* Demo data */}
           {!user && <FooterText variant="body2">Lucy Lavender</FooterText>}
-          <FooterSubText variant="caption">UX Designer</FooterSubText>
+          <FooterSubText variant="caption">Customer</FooterSubText>
         </Grid>
       </Grid>
     </Footer>

@@ -49,7 +49,7 @@ const UserSchema = Schema({
     deleted_at: Date,
 });
 
-UserSchema.virtual("username").get(function () {
+UserSchema.virtual("displayName").get(function () {
     return this.firstName + " " + this.lastName;
 });
 

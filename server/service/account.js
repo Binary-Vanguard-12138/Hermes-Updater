@@ -22,7 +22,7 @@ async function getUser(req) {
 async function authenticate({ email, password, ipAddress }) {
     const account = await UserModel.findOne({ email });
 
-    if (!account || !account.isVerified) {
+    if (!account) {
         throw "Email or password is incorrect";
     }
 
@@ -34,7 +34,7 @@ async function authenticate({ email, password, ipAddress }) {
         throw `The account '${email}' is disabled by administrator`;
     }
     if (account.deleted_at) {
-        throw `The account '${email}' has been deleted_at by administrator`;
+        throw `The account '${email}' has been deleted by administrator`;
     }
 
     // authentication successful so generate jwt and refresh tokens

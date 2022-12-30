@@ -37,6 +37,7 @@ function randomTokenString() {
 function basicAccountDetails(account) {
     const {
         id,
+        displayName,
         firstName,
         lastName,
         email,
@@ -49,6 +50,7 @@ function basicAccountDetails(account) {
     } = account;
     return {
         id,
+        displayName,
         firstName,
         lastName,
         email,

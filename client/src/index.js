@@ -7,8 +7,6 @@ import { BrowserRouter } from "react-router-dom";
 import reportWebVitals from "./utils/reportWebVitals";
 import App from "./App";
 
-import "./mocks";
-
 import { ThemeProvider } from "./contexts/ThemeContext";
 
 ReactDOM.render(

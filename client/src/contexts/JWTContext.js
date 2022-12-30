@@ -1,4 +1,4 @@
-import { createContext, useEffect, useReducer } from "react";
+import { createContext, useCallback, useEffect, useReducer } from "react";
 
 import axios from "../utils/axios";
 import { isValidToken, setSession } from "../utils/jwt";
@@ -7,6 +7,7 @@ const INITIALIZE = "INITIALIZE";
 const SIGN_IN = "SIGN_IN";
 const SIGN_OUT = "SIGN_OUT";
 const SIGN_UP = "SIGN_UP";
+const SET_USER = "SET_USER";
 
 const initialState = {
   isAuthenticated: false,
@@ -23,6 +24,7 @@ const JWTReducer = (state, action) => {
         user: action.payload.user,
       };
     case SIGN_IN:
+    case SET_USER:
       return {
         ...state,
         isAuthenticated: true,
@@ -60,10 +62,8 @@ function AuthProvider({ children }) {
         if (accessToken && isValidToken(accessToken)) {
           setSession(accessToken);
 
-          const response = await axios.get("/api/auth/my-account");
+          const response = await axios.get("/api/auth");
           const { user } = response.data;
-
-          console.log(user);
 
           dispatch({
             type: INITIALIZE,
@@ -96,46 +96,58 @@ function AuthProvider({ children }) {
     initialize();
   }, []);
 
-  const signIn = async (email, password) => {
-    const response = await axios.post("/api/auth/sign-in", {
+  const signIn = useCallback(async (values) => {
+    const { email, password, remember } = values;
+    if (remember) {
+      localStorage.setItem("email", email);
+      localStorage.setItem("remember", true);
+    } else {
+      localStorage.removeItem("email");
+      localStorage.removeItem("remember");
+    }
+
+    const response = await axios.post("/auth/login", {
       email,
       password,
     });
-    const { accessToken, user } = response.data;
+    const user = response.data;
 
-    setSession(accessToken);
+    setSession(user?.jwtToken);
     dispatch({
       type: SIGN_IN,
       payload: {
         user,
       },
     });
-  };
+  }, []);
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     setSession(null);
     dispatch({ type: SIGN_OUT });
-  };
+  }, []);
 
-  const signUp = async (email, password, firstName, lastName) => {
-    const response = await axios.post("/api/auth/sign-up", {
-      email,
-      password,
-      firstName,
-      lastName,
-    });
-    const { accessToken, user } = response.data;
-
-    window.localStorage.setItem("accessToken", accessToken);
-    dispatch({
-      type: SIGN_UP,
-      payload: {
-        user,
-      },
-    });
-  };
+  const signUp = useCallback(async (values) => {
+    const response = await axios.post("/auth/register", values);
+    return response.data;
+  }, []);
 
   const resetPassword = (email) => console.log(email);
+
+  const updateProfile = useCallback(async (values) => {
+    const response = await axios.patch("/auth", values);
+    const user = response.data;
+    dispatch({
+      type: SET_USER,
+      payload: {
+        user: user,
+      },
+    });
+    if (response && response.data) {
+      return true;
+    } else {
+      return false;
+    }
+  }, []);
 
   return (
     <AuthContext.Provider
@@ -146,6 +158,7 @@ function AuthProvider({ children }) {
         signOut,
         signUp,
         resetPassword,
+        updateProfile,
       }}
     >
       {children}

@@ -22,6 +22,7 @@ import HomePage from "./pages/home";
 
 // User Pages
 import ProductPage from "./pages/user/product";
+import PersonalProfile from "./pages/user/profile";
 
 const routes = [
   {
@@ -65,6 +66,10 @@ const routes = [
       {
         path: "product",
         element: <ProductPage />,
+      },
+      {
+        path: "profile",
+        element: <PersonalProfile />,
       },
     ],
   },

@@ -1,35 +1,32 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
-import styled from "@emotion/styled";
-import { Link } from "react-router-dom";
 import * as Yup from "yup";
+import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Formik } from "formik";
-
 import {
-  Alert as MuiAlert,
+  Button,
   Checkbox,
   FormControlLabel,
-  Button,
-  TextField as MuiTextField,
+  Grid,
+  Typography,
 } from "@mui/material";
-import { spacing } from "@mui/system";
 
 import useAuth from "../../hooks/useAuth";
 
-const Alert = styled(MuiAlert)(spacing);
-
-const TextField = styled(MuiTextField)(spacing);
+import { Alert, Divider, TextField } from "../common/styled";
 
 function SignIn() {
   const navigate = useNavigate();
   const { signIn } = useAuth();
-
+  const [rememberFlag, setRememberFlag] = React.useState(
+    window.localStorage.getItem("remember")
+  );
+  const email = window.localStorage.getItem("email");
   return (
     <Formik
       initialValues={{
-        email: "demo@bootlab.io",
-        password: "unsafepassword",
-        submit: false,
+        email: email ? email : "",
+        password: "",
       }}
       validationSchema={Yup.object().shape({
         email: Yup.string()
@@ -40,12 +37,11 @@ function SignIn() {
       })}
       onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
         try {
-          await signIn(values.email, values.password);
-
+          values.remember = rememberFlag;
+          await signIn(values);
           navigate("/user/product");
         } catch (error) {
           const message = error.message || "Something went wrong";
-
           setStatus({ success: false });
           setErrors({ submit: message });
           setSubmitting(false);
@@ -62,13 +58,14 @@ function SignIn() {
         values,
       }) => (
         <form noValidate onSubmit={handleSubmit}>
-          <Alert mt={3} mb={3} severity="info">
-            Use <strong>demo@bootlab.io</strong> and{" "}
-            <strong>unsafepassword</strong> to sign in
-          </Alert>
           {errors.submit && (
-            <Alert mt={2} mb={3} severity="warning">
+            <Alert mt={2} mb={3} variant="outlined" severity="error">
               {errors.submit}
+            </Alert>
+          )}
+          {errors.success && (
+            <Alert mt={2} mb={3} variant="outlined" severity="info">
+              {errors.success}
             </Alert>
           )}
           <TextField
@@ -95,10 +92,31 @@ function SignIn() {
             onChange={handleChange}
             my={2}
           />
-          <FormControlLabel
-            control={<Checkbox value="remember" color="primary" />}
-            label="Remember me"
-          />
+          <Grid container justifyContent="center">
+            <Grid item xs={6}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    name="remember"
+                    checked={rememberFlag}
+                    onClick={() => setRememberFlag(!rememberFlag)}
+                    color="primary"
+                  />
+                }
+                label="Remember me"
+              />
+            </Grid>
+            <Grid item xs={6} align="right">
+              <Button
+                component={Link}
+                to="/auth/forgotpassword"
+                color="primary"
+                align="right"
+              >
+                Forgot password
+              </Button>
+            </Grid>
+          </Grid>
           <Button
             type="submit"
             fullWidth
@@ -106,16 +124,15 @@ function SignIn() {
             color="primary"
             disabled={isSubmitting}
           >
-            Sign in
+            Sign In
           </Button>
-          <Button
-            component={Link}
-            to="/auth/reset-password"
-            fullWidth
-            color="primary"
-          >
-            Forgot password
-          </Button>
+          <Divider my={6} />
+          <Typography align="center">
+            Don't you have an account?
+            <Button component={Link} to="/auth/sign-up" color="primary">
+              Sign Up
+            </Button>
+          </Typography>
         </form>
       )}
     </Formik>
