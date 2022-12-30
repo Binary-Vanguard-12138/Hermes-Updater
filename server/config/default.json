@@ -1,0 +1,13 @@
+{
+    "mongoURI": "mongodb://127.0.0.1:27017/hermes",
+    "jwtSecret": "secret",
+    "emailFrom": "contact@sensedefence.net",
+    "smtpOptions": {
+        "host": "smtp.office365.com",
+        "port": 587,
+        "auth": {
+            "user": "contact@sensedefence.net",
+            "pass": "Y2ch@nge"
+        }
+    }
+}
