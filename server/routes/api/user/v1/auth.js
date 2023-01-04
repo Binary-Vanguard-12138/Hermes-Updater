@@ -1,5 +1,4 @@
 const express = require("express");
-const authController = require("../../../../controllers/user/auth");
 const authorize = require("../../../../middleware/authorize");
 
 const {
@@ -17,7 +16,7 @@ const {
     resetPassword,
     resetPasswordSchema,
     // isVerified,
-} = authController;
+} = require("../../../../controllers/user/auth");
 
 const router = express.Router();
 

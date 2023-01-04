@@ -2,17 +2,17 @@ import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { Outlet } from "react-router-dom";
 
-import { Box, CssBaseline, Paper as MuiPaper } from "@mui/material";
+import { Box, CssBaseline } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import { spacing } from "@mui/system";
 
 import GlobalStyle from "../components/GlobalStyle";
 import Navbar from "../components/navbar/Navbar";
-import userItems from "../components/sidebar/userItems";
+import adminItems from "../components/sidebar/adminItems";
 import Sidebar from "../components/sidebar/Sidebar";
 // import Footer from "../components/Footer";
 import Settings from "../components/Settings";
+import { Paper } from "../components/common/styled";
 
 const drawerWidth = 258;
 
@@ -35,8 +35,6 @@ const AppContent = styled.div`
   max-width: 100%;
 `;
 
-const Paper = styled(MuiPaper)(spacing);
-
 const MainContent = styled(Paper)`
   flex: 1;
   background: ${(props) => props.theme.palette.background.default};
@@ -50,7 +48,7 @@ const MainContent = styled(Paper)`
   }
 `;
 
-const UserLayout = ({ children }) => {
+const AdminLayout = ({ children }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleDrawerToggle = () => {
@@ -71,13 +69,13 @@ const UserLayout = ({ children }) => {
             variant="temporary"
             open={mobileOpen}
             onClose={handleDrawerToggle}
-            items={userItems}
+            items={adminItems}
           />
         </Box>
         <Box sx={{ display: { xs: "none", md: "block" } }}>
           <Sidebar
             PaperProps={{ style: { width: drawerWidth } }}
-            items={userItems}
+            items={adminItems}
           />
         </Box>
       </Drawer>
@@ -94,4 +92,4 @@ const UserLayout = ({ children }) => {
   );
 };
 
-export default UserLayout;
+export default AdminLayout;

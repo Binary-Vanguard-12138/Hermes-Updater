@@ -1,7 +1,7 @@
 {
-  "name": "mira",
-  "version": "4.1.0",
-  "description": "Mira Pro - React Material Admin Dashboard Template",
+  "name": "hermes-updater-frontend",
+  "version": "0.1.0",
+  "description": "Hermes Updater Front-End Project",
   "author": "Bootlab <support@bootlab.io>",
   "private": true,
   "license": "https://mui.com/store/license/",

@@ -1,7 +1,12 @@
 import { createContext, useCallback, useEffect, useReducer } from "react";
 
-import axios from "../utils/axios";
-import { isValidToken, setSession } from "../utils/jwt";
+import axios from "../utils/axios/v1/userAxios";
+import {
+  isSuperAdmin,
+  isValidToken,
+  setSession,
+  setSuperSession,
+} from "../utils/jwt";
 
 const INITIALIZE = "INITIALIZE";
 const SIGN_IN = "SIGN_IN";
@@ -62,7 +67,7 @@ function AuthProvider({ children }) {
         if (accessToken && isValidToken(accessToken)) {
           setSession(accessToken);
 
-          const response = await axios.get("/api/auth");
+          const response = await axios.get("/auth");
           const { user } = response.data;
 
           dispatch({
@@ -112,7 +117,11 @@ function AuthProvider({ children }) {
     });
     const user = response.data;
 
-    setSession(user?.jwtToken);
+    if (isSuperAdmin(user?.role)) {
+      setSuperSession(user?.jwtToken);
+    } else {
+      setSession(user?.jwtToken);
+    }
     dispatch({
       type: SIGN_IN,
       payload: {
@@ -123,6 +132,7 @@ function AuthProvider({ children }) {
 
   const signOut = useCallback(async () => {
     setSession(null);
+    setSuperSession(null);
     dispatch({ type: SIGN_OUT });
   }, []);
 
@@ -149,6 +159,11 @@ function AuthProvider({ children }) {
     }
   }, []);
 
+  const verifyEmail = useCallback(async (token) => {
+    const response = await axios.patch("/auth/verify-email", { token });
+    return response.data;
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -159,6 +174,7 @@ function AuthProvider({ children }) {
         signUp,
         resetPassword,
         updateProfile,
+        verifyEmail,
       }}
     >
       {children}

@@ -17,11 +17,16 @@ import { Alert, Divider, TextField } from "../common/styled";
 
 function SignIn() {
   const navigate = useNavigate();
-  const { signIn } = useAuth();
+  const { user, signIn } = useAuth();
   const [rememberFlag, setRememberFlag] = React.useState(
     window.localStorage.getItem("remember")
   );
   const email = window.localStorage.getItem("email");
+  React.useEffect(() => {
+    if (user) {
+      navigate("/");
+    }
+  }, [user, navigate]);
   return (
     <Formik
       initialValues={{
@@ -39,7 +44,6 @@ function SignIn() {
         try {
           values.remember = rememberFlag;
           await signIn(values);
-          navigate("/user/product");
         } catch (error) {
           const message = error.message || "Something went wrong";
           setStatus({ success: false });
