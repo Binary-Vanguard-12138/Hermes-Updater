@@ -14,6 +14,7 @@ async function sendEmail({
         return;
     }
     const transporter = nodemailer.createTransport(config.get("smtpOptions"));
+    // transporter.verify().then(console.log).catch(console.error);
     try {
         await transporter.sendMail({ from, to, subject, html, attachments });
     } catch (err) {
