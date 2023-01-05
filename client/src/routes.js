@@ -13,6 +13,7 @@ import AuthGuard from "./components/guards/AuthGuard";
 
 // Contexts
 import { UserProvider } from "./contexts/admin/UserContext";
+import { ProductProvider } from "./contexts/user/ProductContext";
 
 // Auth components
 import SignIn from "./pages/auth/SignIn";
@@ -85,6 +86,14 @@ const routes = [
         ),
       },
       {
+        path: "product",
+        element: (
+          <ProductProvider>
+            <ProductPage />
+          </ProductProvider>
+        ),
+      },
+      {
         path: "profile",
         element: <PersonalProfile />,
       },
@@ -100,7 +109,11 @@ const routes = [
     children: [
       {
         path: "product",
-        element: <ProductPage />,
+        element: (
+          <ProductProvider>
+            <ProductPage />
+          </ProductProvider>
+        ),
       },
       {
         path: "profile",

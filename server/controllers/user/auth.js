@@ -4,7 +4,6 @@ const validateRequest = require("../../middleware/validate-request");
 const accountService = require("../../service/account");
 
 const { setTokenCookie } = require("../../helpers/account");
-const { UserRole } = require("../../constants/User");
 
 function authenticateSchema(req, res, next) {
     const schema = Joi.object({

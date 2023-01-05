@@ -8,6 +8,11 @@ const elementsSection = [
     title: "Users",
   },
   {
+    href: "/admin/product",
+    icon: List,
+    title: "Product Updates",
+  },
+  {
     href: "/admin/profile",
     icon: ProfileIcon,
     title: "My Profile",
