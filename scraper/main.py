@@ -294,8 +294,9 @@ def scrape_requests(urls):
     global cookies_datadome
     while (g_is_running):
         try:
-            with open("datadome.pkl", "rb") as f:
-                cookies_datadome = pickle.load(f)
+            if None == cookies_datadome:
+                with open("datadome.pkl", "rb") as f:
+                    cookies_datadome = pickle.load(f)
             requests.get(notify_api_url + '/product/on_start_scrape')
         except Exception as e:
             logger.error(e)
