@@ -1,18 +1,14 @@
 from urllib.parse import urlencode
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.options import Options
+# from selenium.webdriver.chrome.service import Service
+# from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 import pandas as pd
-from datetime import datetime
-from selenium import webdriver
-from seleniumwire import webdriver
-import seleniumwire.undetected_chromedriver as uc
+import undetected_chromedriver as uc
+from undetected_chromedriver import Chrome, ChromeOptions
 from random import randint
 import time
 import os
 import pickle
-import string
 import urllib
 import urllib.parse
 import pyautogui
@@ -22,20 +18,22 @@ from http import HTTPStatus
 import json
 from logger import get_root_logger
 import time
-
+import signal
+import sys
 
 logger = get_root_logger(__name__)
 
 
 g_is_running = False
 
+COOKIE_DUMP_FILE = 'cookies.pkl'
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
 UA_PLATFORM = '"Windows"'
 
 # USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
 # UA_PLATFORM = '"macOS"'
 
-driver = None
+driver: Chrome = None
 
 use_proxy = "N"
 num = 2
@@ -68,29 +66,38 @@ def on_find_new_product(url):
             logger.debug(response.text)
 
 
+def get_encoded_url(url):
+    url_part2 = url[37:-1]
+    encode_url_part2 = urllib.parse.quote_plus(url_part2)
+    url_part1 = url[0:37]
+    # encode_url_part1 = urllib.parse.quote_plus(url_part1)
+    encode_url = url_part1 + encode_url_part2 + "/"
+    return encode_url
+
+
 def check_product_selenium(url):
     global driver
-    # driver.implicitly_wait(randint(5, 8))
     logger.debug('check_product_selenium ' + url)
-    driver.request_interceptor = interceptor
+    # driver.request_interceptor = interceptor
     driver.get(url)
     try:
         pyautogui.moveTo(100*randint(0, 10), 100*randint(0, 10),
                          duration=randint(10, 50)/100)
-        url_part2 = url[37:-1]
-        encode_url_part2 = urllib.parse.quote_plus(url_part2)
-        url_part1 = url[0:37]
-        # encode_url_part1 = urllib.parse.quote_plus(url_part1)
-        encode_url = url_part1 + encode_url_part2 + "/"
         add_to_cart = driver.find_element(
             By.XPATH, '//button[@name="add-to-cart"]')
         # if add_to_cart and add_to_cart.is_enabled() == True:
         # print(add_to_cart)
         if add_to_cart:
-            on_find_new_product(encode_url)
+            on_find_new_product(get_encoded_url(url))
     except Exception as e:
         # logger.error(e)
         pass
+    # Save the current cookie
+    try:
+        with open(COOKIE_DUMP_FILE, "wb") as f:
+            pickle.dump(driver.get_cookies(), f)
+    except Exception as e:
+        logger.error(e)
 
 
 cookies_datadome = None
@@ -189,7 +196,6 @@ def check_product_requests(url):
     res = requests.options(bck_url, headers=options_headers)
     if 204 != res.status_code:
         return False
-    headers['Cookies'] = res_cookie
     get_headers = {
         'accept': 'application/json, text/plain, */*',
         'accept-encoding': 'gzip, deflate, br',
@@ -217,12 +223,7 @@ def check_product_requests(url):
         return False
 
     if 200 == main_res_status or 200 == res.status_code:
-        url_part2 = url[37:-1]
-        encode_url_part2 = urllib.parse.quote_plus(url_part2)
-        url_part1 = url[0:37]
-        # encode_url_part1 = urllib.parse.quote_plus(url_part1)
-        encode_url = url_part1 + encode_url_part2 + "/"
-        on_find_new_product(encode_url)
+        on_find_new_product(get_encoded_url(url))
 
     return True
 
@@ -239,16 +240,19 @@ def interceptor(request):
 
 def scrape_selinium(urls):
     global g_is_running
+    global driver
 
-    dirr = os.path.abspath(os.curdir).rsplit("\\", 1)[0] + f"\\userdata_{num}"
-    options = Options()
+    user_data_dir = os.path.abspath(os.curdir).rsplit("\\", 1)[
+        0] + f"\\userdata_{num}"
+    options = ChromeOptions()
+    '''
     # options.add_argument('--headless')
     options.add_argument('--no-sandbox')
     options.add_argument("--disable-infobars")
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--disable-blink-features")
     options.add_argument("excludeSwitches")
-    options.add_argument(r"user-data-dir={}".format(dirr))
+    options.add_argument(r"user-data-dir={}".format(user_data_dir))
     options.add_experimental_option(
         "excludeSwitches", ['enable-automation', 'enable-logging'])
     options.add_argument("--disable-blink-features=AutomationControlled")
@@ -264,33 +268,42 @@ def scrape_selinium(urls):
         }
     else:
         proxy_options = {}
-
-    driver = webdriver.Chrome(service=s, options=options,
-                              seleniumwire_options=proxy_options)
+    '''
+    driver = uc.Chrome(user_data_dir=user_data_dir, options=options)
+    # driver = uc.Chrome(service=s, options=options,
+    #                    seleniumwire_options=proxy_options)
     driver.maximize_window()
     # driver.implicitly_wait(5)
-
     driver.get(
         'https://www.hermes.com/jp/ja/category/women/bags-and-small-leather-goods')
     driver.implicitly_wait(randint(1, 3))
-    pickle.dump(driver.get_cookies(), open("cookies.pkl", "wb"))
-    cookies = pickle.load(open("cookies.pkl", "rb"))
-    for cookie in cookies:
-        driver.add_cookie(cookie)
+    try:
+        with open(COOKIE_DUMP_FILE, "rb") as f:
+            cookies = pickle.load(f)
+            for cookie in cookies:
+                driver.add_cookie(cookie)
+    except Exception as e:
+        logger.error(e)
 
     g_is_running = True
 
     while (g_is_running):
-        requests.get(notify_api_url + '/product/on_start_scrape')
+        try:
+            requests.get(notify_api_url + '/product/on_start_scrape')
+        except Exception as e:
+            logger.error(e)
+
         for link in urls:
-            time.sleep(randint(3, 8))
+            time.sleep(randint(3, 7))
             check_product_selenium(link)
 
     driver.close()
     driver.quit()
+    logger.info('Finished!')
 
 
 def scrape_requests(urls):
+    global g_is_running
     global cookies_datadome
     while (g_is_running):
         try:
@@ -306,11 +319,21 @@ def scrape_requests(urls):
         break
 
 
-if __name__ == "__main__":
+def signal_handler(sig, frame):
+    global g_is_running
+    if (signal.SIGINT == sig):
+        print('You pressed Ctrl+C!')
+        g_is_running = False
 
+
+if __name__ == "__main__":
     df = pd.read_csv(f"picotan_rock_{num}.csv")
     urls = df.iloc[:, 0].values
     logger.debug('Loaded ' + str(len(urls)) + " URLs")
 
     g_is_running = True
-    scrape_requests(urls)
+    signal.signal(signal.SIGINT, signal_handler)
+    # signal.pause()
+
+    scrape_selinium(urls)
+    # scrape_requests(urls)
