@@ -93,7 +93,7 @@ def check_product_selenium(url):
         pass
 
 
-cookies_datadome = ''
+cookies_datadome = None
 
 
 def check_product_requests(url):
@@ -121,6 +121,7 @@ def check_product_requests(url):
     }
 
     res = requests.get(url, headers=headers, cookies=cookies)
+
     main_res_status = res.status_code
     logger.debug(str(res.status_code) + " " + url)
     if 403 == res.status_code:
@@ -209,6 +210,9 @@ def check_product_requests(url):
     logger.debug('check_product_requests ' + url +
                  ', status_code=' + str(res.status_code))
     cookies_datadome = res.cookies['datadome']
+    with open("datadome.pkl", "wb") as f:
+        pickle.dump(cookies_datadome, f)
+
     if 403 == res.status_code:
         return False
 
@@ -287,8 +291,11 @@ def scrape_selinium(urls):
 
 
 def scrape_requests(urls):
+    global cookies_datadome
     while (g_is_running):
         try:
+            with open("datadome.pkl", "rb") as f:
+                cookies_datadome = pickle.load(f)
             requests.get(notify_api_url + '/product/on_start_scrape')
         except Exception as e:
             logger.error(e)

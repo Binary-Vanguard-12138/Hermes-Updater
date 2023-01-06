@@ -4,7 +4,7 @@ import platform
 import logging
 
 LOG_FILE_PATH = 'E:/log/hermes_update_debug.log' if platform.system(
-) == 'Windows' else '/var/log/hermes_update_debug.log'
+) == 'Windows' else '/tmp/hermes_update_debug.log'
 
 root_loggers = {}
 
