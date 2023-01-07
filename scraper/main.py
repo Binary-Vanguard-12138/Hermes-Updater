@@ -245,19 +245,18 @@ def scrape_selinium(urls):
     user_data_dir = os.path.abspath(os.curdir).rsplit("\\", 1)[
         0] + f"\\userdata_{num}"
     options = ChromeOptions()
-    '''
     # options.add_argument('--headless')
     options.add_argument('--no-sandbox')
     options.add_argument("--disable-infobars")
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--disable-blink-features")
     options.add_argument("excludeSwitches")
-    options.add_argument(r"user-data-dir={}".format(user_data_dir))
+    # options.add_argument(r"user-data-dir={}".format(user_data_dir))
     options.add_experimental_option(
         "excludeSwitches", ['enable-automation', 'enable-logging'])
     options.add_argument("--disable-blink-features=AutomationControlled")
     # options.add_argument("--remote-debugging-port=9222")
-    s = Service(ChromeDriverManager().install())
+    # s = Service(ChromeDriverManager().install())
 
     if use_proxy.lower() == "y":
         proxy_options = {
@@ -268,7 +267,6 @@ def scrape_selinium(urls):
         }
     else:
         proxy_options = {}
-    '''
     driver = uc.Chrome(user_data_dir=user_data_dir, options=options)
     # driver = uc.Chrome(service=s, options=options,
     #                    seleniumwire_options=proxy_options)
