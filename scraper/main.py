@@ -25,6 +25,7 @@ logger = get_root_logger(__name__)
 
 
 g_is_running = False
+requests_session = requests.Session()
 
 COOKIE_DUMP_FILE = 'cookies.pkl'
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
@@ -101,6 +102,24 @@ def check_product_selenium(url):
 
 
 cookies_datadome = None
+
+
+def check_products_image_requests(url):
+    global requests_session
+    headers = {
+        "user-agent": USER_AGENT
+    }
+    productsku = url[-11: -1]
+    img_url = f'https://assets.hermes.com/is/image/hermesproduct/{productsku}_set'
+    logger.debug(img_url)
+    try:
+        res = requests_session.get(img_url, headers=headers)
+        if 200 != res.status_code:
+            logger.warn(f'Invalid response {res.status_code} for {url}')
+        elif 1000 < len(res._content):
+            on_find_new_product(get_encoded_url(url))
+    except Exception as e:
+        logger.error(e)
 
 
 def check_product_requests(url):
@@ -250,10 +269,10 @@ def scrape_selinium(urls):
     options.add_argument("--disable-infobars")
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--disable-blink-features")
-    options.add_argument("excludeSwitches")
+    # options.add_argument("excludeSwitches")
     # options.add_argument(r"user-data-dir={}".format(user_data_dir))
-    options.add_experimental_option(
-        "excludeSwitches", ['enable-automation', 'enable-logging'])
+    # options.add_experimental_option(
+    #     "excludeSwitches", ['enable-automation', 'enable-logging'])
     options.add_argument("--disable-blink-features=AutomationControlled")
     # options.add_argument("--remote-debugging-port=9222")
     # s = Service(ChromeDriverManager().install())
@@ -271,10 +290,14 @@ def scrape_selinium(urls):
     # driver = uc.Chrome(service=s, options=options,
     #                    seleniumwire_options=proxy_options)
     driver.maximize_window()
+    return
     # driver.implicitly_wait(5)
     driver.get(
-        'https://www.hermes.com/jp/ja/category/women/bags-and-small-leather-goods')
+        'https://www.hermes.com/jp/ja/category/%E3%83%AC%E3%83%87%E3%82%A3%E3%82%B9/%E3%82%A6%E3%82%A7%E3%82%A2/2023%E5%B9%B4%E6%98%A5%E5%A4%8F%E3%82%B3%E3%83%AC%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3/#|')
     driver.implicitly_wait(randint(1, 3))
+    pyautogui.moveTo(100*randint(0, 10), 100*randint(0, 10),
+                     duration=randint(10, 50)/100)
+
     try:
         with open(COOKIE_DUMP_FILE, "rb") as f:
             cookies = pickle.load(f)
@@ -303,7 +326,7 @@ def scrape_selinium(urls):
 def scrape_requests(urls):
     global g_is_running
     global cookies_datadome
-    while (g_is_running):
+    while True == g_is_running:
         try:
             if None == cookies_datadome:
                 with open("datadome.pkl", "rb") as f:
@@ -312,15 +335,16 @@ def scrape_requests(urls):
         except Exception as e:
             logger.error(e)
         for link in urls:
-            check_product_requests(link)
-            time.sleep(randint(8, 12))
+            check_products_image_requests(link)
+            # check_product_requests(link)
+            # time.sleep(randint(8, 12))
         break
 
 
 def signal_handler(sig, frame):
     global g_is_running
     if (signal.SIGINT == sig):
-        print('You pressed Ctrl+C!')
+        logger.debug('You pressed Ctrl+C!')
         g_is_running = False
 
 
@@ -330,8 +354,8 @@ if __name__ == "__main__":
     logger.debug('Loaded ' + str(len(urls)) + " URLs")
 
     g_is_running = True
-    signal.signal(signal.SIGINT, signal_handler)
+    # signal.signal(signal.SIGINT, signal_handler)
     # signal.pause()
 
-    scrape_selinium(urls)
-    # scrape_requests(urls)
+    # scrape_selinium(urls)
+    scrape_requests(urls)

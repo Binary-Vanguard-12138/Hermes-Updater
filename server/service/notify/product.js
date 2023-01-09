@@ -3,6 +3,7 @@ const sendEmail = require("../../helpers/send-email");
 const { ProductModel } = require("../../models/Product");
 const { setGlobalConfig, getGlobalConfig } = require("../admin/global_config");
 const { UserModel } = require("../../models/User");
+const { getImageUrlFromProductUrl } = require("../../helpers/product");
 
 async function onStartScrape() {
     logger.debug(`onStartScrape`);
@@ -22,7 +23,8 @@ async function onFoundNewProduct(url) {
     const oldProduct = await ProductModel.findOne({ url });
     let isNew = false;
     if (!oldProduct) {
-        await ProductModel.create({ url, updated_at: Date.now() });
+        const image_url = getImageUrlFromProductUrl(url);
+        await ProductModel.create({ url, image_url, updated_at: Date.now() });
         isNew = true;
     } else {
         const last_scraped_at = await getGlobalConfig("last_scraped_at") || Date.now();

@@ -26,7 +26,7 @@ import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import useProduct from "../../../../hooks/user/useProduct";
 import { formatDate } from "../../../common/format";
 
-import { Paper, TextField } from "../../../common/styled";
+import { Button, Paper, TextField } from "../../../common/styled";
 import { getComparator, stableSort } from "../../../common/tableSort";
 
 const IconButton = styled(MuiIconButton)`
@@ -34,6 +34,11 @@ const IconButton = styled(MuiIconButton)`
 `;
 
 const headCells = [
+  {
+    id: "image_url",
+    alignment: "left",
+    label: "Image",
+  },
   {
     id: "url",
     alignment: "left",
@@ -297,6 +302,31 @@ function EnhancedTable() {
                         tabIndex={-1}
                         key={`${row?.id}-${index}`}
                       >
+                        <TableCell
+                          align="left"
+                          sx={{
+                            padding: "8px",
+                          }}
+                        >
+                          <Button
+                            // variant="contained"
+                            // color="secondary"
+                            startIcon={
+                              <Box
+                                component="img"
+                                sx={{
+                                  height: 100,
+                                  width: 100,
+                                }}
+                                alt={decodeURI(row?.image_url)}
+                                src={row?.image_url}
+                                onClick={(e) => {
+                                  window.open(row?.url, "_blank", "noreferrer");
+                                }}
+                              />
+                            }
+                          />
+                        </TableCell>
                         <TableCell
                           align="left"
                           sx={{

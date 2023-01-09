@@ -5,7 +5,13 @@ const ProductSchema = Schema({
     url: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
+    },
+    image_url: {
+        type: String,
+        required: true,
+        unique: true,
+        sparse: true, // unique if not null
     },
     updated_at: {
         type: Date,
