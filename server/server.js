@@ -12,6 +12,7 @@ const morgan = require("morgan");
 
 const connectDB = require("./config/db");
 const { INTERNAL_PORT } = require("./constants/App");
+const { isProductionEnv } = require("./helpers/env");
 
 const app = express();
 app.use(helmet());
@@ -72,7 +73,7 @@ app.on("db_ready", async () => {
     // start the Express server
     app.listen(INTERNAL_PORT, () =>
         logger.info(
-            `SenseDefence Admin backend server started on port ${INTERNAL_PORT}`
+            `SenseDefence Admin backend server started on port ${INTERNAL_PORT}, ${isProductionEnv()}`
         )
     );
 });
