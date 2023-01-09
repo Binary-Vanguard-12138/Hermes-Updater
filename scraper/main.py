@@ -64,7 +64,8 @@ def on_find_new_product(url):
             'Invalid response status from OM agent, status_code=' + str(response.status_code))
     else:
         if 0 < len(response.text):
-            logger.debug(response.text)
+            # logger.debug(response.text)
+            pass
 
 
 def get_encoded_url(url):
@@ -111,9 +112,8 @@ def check_products_image_requests(url):
     }
     productsku = url[-11: -1]
     img_url = f'https://assets.hermes.com/is/image/hermesproduct/{productsku}_set'
-    logger.debug(img_url)
     try:
-        res = requests_session.get(img_url, headers=headers)
+        res = requests_session.get(img_url, headers=headers, timeout=10)
         if 200 != res.status_code:
             logger.warn(f'Invalid response {res.status_code} for {url}')
         elif 1000 < len(res._content):
@@ -327,6 +327,8 @@ def scrape_requests(urls):
     global g_is_running
     global cookies_datadome
     while True == g_is_running:
+        logger.info(f'Starting a new loop')
+        idx = 0
         try:
             if None == cookies_datadome:
                 with open("datadome.pkl", "rb") as f:
@@ -335,10 +337,14 @@ def scrape_requests(urls):
         except Exception as e:
             logger.error(e)
         for link in urls:
-            check_products_image_requests(link)
-            # check_product_requests(link)
-            # time.sleep(randint(8, 12))
-        break
+            idx += 1
+            if True == is_need_scrape():
+                logger.debug(f'#{idx} {link}')
+                check_products_image_requests(link)
+                # check_product_requests(link)
+                # time.sleep(randint(8, 12))
+            else:
+                time.sleep(60)
 
 
 def signal_handler(sig, frame):
@@ -348,8 +354,13 @@ def signal_handler(sig, frame):
         g_is_running = False
 
 
-if __name__ == "__main__":
-    df = pd.read_csv(f"picotan_rock_{num}.csv")
+def is_need_scrape():
+    return True
+
+
+def main():
+    global g_is_running
+    df = pd.read_csv(f"data/picotan_rock.csv")
     urls = df.iloc[:, 0].values
     logger.debug('Loaded ' + str(len(urls)) + " URLs")
 
@@ -357,5 +368,8 @@ if __name__ == "__main__":
     # signal.signal(signal.SIGINT, signal_handler)
     # signal.pause()
 
-    # scrape_selinium(urls)
     scrape_requests(urls)
+
+
+if __name__ == "__main__":
+    main()
