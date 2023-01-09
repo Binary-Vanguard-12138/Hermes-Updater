@@ -11,7 +11,8 @@ async function onStartScrape() {
 }
 
 async function sendEmail2Users(url) {
-    const users = await UserModel.find({ enabled: true, deleted_at: { $nin: [undefined, null] } });
+    logger.debug(`sendEmail2Users ${url}`)
+    const users = await UserModel.find({ enabled: true, deleted_at: { $in: [undefined, null] } });
     await Promise.all(users.map(async user => {
         const { email } = user;
         await sendEmail({ to: email, subject: "New Product from Hermes", html: `A new product has been arrived:\nLink: ${url}\nTime: ${new Date().toISOString()}` })
