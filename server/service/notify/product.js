@@ -30,7 +30,7 @@ async function onFoundNewProduct(url) {
     } else {
         const last_scraped_at = await getGlobalConfig("last_scraped_at") || Date.now();
         if (oldProduct.updated_at < last_scraped_at) {
-            isNew = true
+            // isNew = true
         }
         oldProduct.updated_at = Date.now();
         await oldProduct.save();
