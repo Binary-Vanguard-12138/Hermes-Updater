@@ -13,6 +13,11 @@ const ProductSchema = Schema({
         unique: true,
         sparse: true, // unique if not null
     },
+    created_at: {
+        type: Date,
+        required: true,
+        default: Date.now,
+    },
     updated_at: {
         type: Date,
         required: true,
