@@ -4,7 +4,7 @@
     "description": "Backend API server Hermes Update",
     "main": "server.js",
     "scripts": {
-        "start": "NODE_ENV=production&&node server",
+        "start": "NODE_ENV=production node server",
         "server": "nodemon server",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
@@ -28,6 +28,7 @@
         "mongoose": "^6.5.2",
         "morgan": "^1.10.0",
         "morgan-json": "^1.1.0",
+        "nodejs-nodemailer-outlook": "^1.2.4",
         "nodemailer": "^6.7.8",
         "process": "^0.11.10",
         "winston": "^3.8.1"

@@ -1,13 +1,19 @@
 {
     "mongoURI": "mongodb://127.0.0.1:27017/hermes",
     "jwtSecret": "secret",
-    "emailFrom": "josanta.dev@gmail.com",
+    "emailFrom": "smartdev1228_5@outlook.com",
     "smtpOptions": {
         "host": "smtp.gmail.com",
         "port": 587,
         "auth": {
             "user": "josanta.dev@gmail.com",
             "pass": "jvawinoxhdemkjyy"
+        }
+    },
+    "outlookSmtpOptions": {
+        "auth": {
+            "user": "smartdev1228_5@outlook.com",
+            "pass": "solomon1228"
         }
     }
 }
