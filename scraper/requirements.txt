@@ -7,3 +7,4 @@ undetected_chromedriver
 openpyxl==3.0.10
 pyautogui
 requests
+httpagentparser
