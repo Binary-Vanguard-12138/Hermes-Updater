@@ -47,7 +47,7 @@ TABLE_NAME = 'use_proxy'
 # ###### config the proxy fetch function ######
 PROXY_FETCHER = [
     "freeProxy01",
-    "freeProxy02",
+    #  "freeProxy02",
     "freeProxy03",
     "freeProxy04",
     "freeProxy05",
@@ -62,7 +62,9 @@ PROXY_FETCHER = [
 # 代理验证目标网站
 HTTP_URL = "http://httpbin.org"
 
-HTTPS_URL = "https://www.qq.com"
+HTTPS_URL = "https://httpbin.org/get"
+
+LOCAL_IP = "45.126.3.252"
 
 # 代理验证时超时时间
 VERIFY_TIMEOUT = 10

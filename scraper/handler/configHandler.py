@@ -54,6 +54,10 @@ class ConfigHandler(withMetaclass(Singleton)):
         return os.getenv("HTTPS_URL", setting.HTTPS_URL)
 
     @LazyProperty
+    def localIp(self):
+        return os.getenv("LOCAL_IP", setting.LOCAL_IP)
+
+    @LazyProperty
     def verifyTimeout(self):
         return int(os.getenv("VERIFY_TIMEOUT", setting.VERIFY_TIMEOUT))
 
@@ -80,4 +84,3 @@ class ConfigHandler(withMetaclass(Singleton)):
     @LazyProperty
     def timezone(self):
         return os.getenv("TIMEZONE", setting.TIMEZONE)
-

@@ -22,6 +22,7 @@ import signal
 import sys
 import random
 import httpagentparser
+from helper.launcher import startScheduler
 
 logger = get_root_logger(__name__)
 
@@ -466,7 +467,14 @@ def is_need_scrape():
     return True
 
 
+def schedule():
+    """ 启动调度程序 """
+    startScheduler()
+
+
 def main():
+    startScheduler()
+    return
     global g_is_running
     df = pd.read_csv(f"data/picotan_rock.csv")
     urls = df.iloc[:, 0].values
