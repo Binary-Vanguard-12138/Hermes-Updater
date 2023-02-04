@@ -269,7 +269,8 @@ def check_product_requests(url):
         return False
 
     try:
-        res = requests_session.get(url, headers=headers, proxies=proxies)
+        res = requests_session.get(
+            url, headers=headers, proxies=proxies, timeout=20)
         main_res_status = res.status_code
         logger.debug(str(res.status_code) + " " + str(proxies) + " " + url)
         if 200 == res.status_code:
