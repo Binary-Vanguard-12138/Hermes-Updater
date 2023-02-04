@@ -155,7 +155,7 @@ UA_PLATFORM = '"macOS"'
 
 driver: Chrome = None
 
-use_proxy = "N"
+use_proxy = "Y"
 num = 2
 
 API_KEY = "adfe018cb2d00b2eb8ebab37d64aa4fa"
@@ -251,10 +251,17 @@ def check_product_requests(url):
     # cookies = {'datadome': cookies_datadome}
 
     headers = {
-        "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+        "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
         "accept-encoding": "gzip, deflate, br",
-        "accept-language": "ja,en-US;q=0.9,en;q=0.8",
-        "user-agent": ua
+        "accept-language": "ja,en-US,en;q=0.5",
+        "Connection": "keep-alive",
+        "DNT": "1",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "none",
+        "Sec-Fetch-User": "?1",
+        "Upgrade-Insecure-Requests": '1',
+        "user-agent": ua,
     }
     proxies = getRandomProxy()
     if None == proxies:
@@ -262,7 +269,7 @@ def check_product_requests(url):
         return False
 
     try:
-        res = requests_session.head(url, headers=headers, proxies=proxies)
+        res = requests_session.get(url, headers=headers, proxies=proxies)
         main_res_status = res.status_code
         logger.debug(str(res.status_code) + " " + str(proxies) + " " + url)
         if 200 == res.status_code:
@@ -381,6 +388,11 @@ def scrape_selinium(urls):
     global g_is_running
     global driver
 
+    proxy_handler = ProxyHandler()
+    proxy = proxy_handler.get(True)
+    if None == proxy:
+        return
+
     user_data_dir = os.path.abspath(os.curdir).rsplit("\\", 1)[
         0] + f"\\userdata_{num}"
     options = ChromeOptions()
@@ -394,10 +406,12 @@ def scrape_selinium(urls):
     # options.add_experimental_option(
     #     "excludeSwitches", ['enable-automation', 'enable-logging'])
     options.add_argument("--disable-blink-features=AutomationControlled")
+    options.add_argument('--proxy-server=' + proxy.proxy)
     # options.add_argument("--remote-debugging-port=9222")
     # s = Service(ChromeDriverManager().install())
 
     if use_proxy.lower() == "y":
+        options.add_argument('--proxy-server=' + proxy.proxy)
         proxy_options = {
             'proxy': {
                 'http': f'http://scraperapi:{API_KEY}@proxy-server.scraperapi.com:8001',
@@ -406,7 +420,8 @@ def scrape_selinium(urls):
         }
     else:
         proxy_options = {}
-    driver = uc.Chrome(user_data_dir=user_data_dir, options=options)
+    driver = uc.Chrome(user_data_dir=user_data_dir,
+                       options=options)
     # driver = uc.Chrome(service=s, options=options,
     #                    seleniumwire_options=proxy_options)
     driver.maximize_window()
@@ -495,6 +510,7 @@ def main():
     # signal.pause()
 
     scrape_requests(urls)
+    # scrape_selinium(urls)
 
 
 if __name__ == "__main__":
