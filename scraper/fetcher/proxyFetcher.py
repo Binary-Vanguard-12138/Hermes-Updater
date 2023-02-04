@@ -44,6 +44,8 @@ class ProxyFetcher(object):
                 for tr in _tree.xpath("//table//tr"):
                     ip = "".join(tr.xpath("./td[1]/text()")).strip()
                     port = "".join(tr.xpath("./td[2]/text()")).strip()
+                    if tr.xpath("./td[4]/text()")[0] != '高匿':
+                        continue
                     yield "%s:%s" % (ip, port)
                 next_page = _tree.xpath(
                     "//div[@class='page']/a[@title='下一页']/@href")
@@ -68,12 +70,20 @@ class ProxyFetcher(object):
     def freeProxy03():
         """ 开心代理 """
         target_urls = ["http://www.kxdaili.com/dailiip.html",
-                       "http://www.kxdaili.com/dailiip/2/1.html"]
+                       "http://www.kxdaili.com/dailiip/1/1.html",
+                       "http://www.kxdaili.com/dailiip/1/2.html",
+                       "http://www.kxdaili.com/dailiip/1/3.html",
+                       "http://www.kxdaili.com/dailiip/1/4.html",
+                       "http://www.kxdaili.com/dailiip/1/5.html"]
         for url in target_urls:
             tree = WebRequest().get(url).tree
             for tr in tree.xpath("//table[@class='active']//tr")[1:]:
                 ip = "".join(tr.xpath('./td[1]/text()')).strip()
                 port = "".join(tr.xpath('./td[2]/text()')).strip()
+                if tr.xpath('./td[3]/text()')[0] != '高匿':
+                    continue
+                if tr.xpath('./td[4]/text()')[0] != 'HTTP,HTTPS':
+                    continue
                 yield "%s:%s" % (ip, port)
 
     @staticmethod
@@ -121,7 +131,7 @@ class ProxyFetcher(object):
             resp_text = WebRequest().get(url).text
             for each in resp_text.split("\n"):
                 json_info = json.loads(each)
-                if json_info.get("country") == "CN":
+                if json_info.get("anonymity") == "high_anonymous" and json_info.get("type") == "https":
                     yield "%s:%s" % (json_info.get("host", ""), json_info.get("port", ""))
         except Exception as e:
             print(e)
@@ -130,13 +140,20 @@ class ProxyFetcher(object):
     def freeProxy07():
         """ 云代理 """
         urls = ['http://www.ip3366.net/free/?stype=1',
-                "http://www.ip3366.net/free/?stype=2"]
+                'http://www.ip3366.net/free/?stype=1&page=2',
+                'http://www.ip3366.net/free/?stype=1&page=3',
+                'http://www.ip3366.net/free/?stype=1&page=4',
+                'http://www.ip3366.net/free/?stype=1&page=5',
+                # "http://www.ip3366.net/free/?stype=2"
+                ]
         for url in urls:
             r = WebRequest().get(url, timeout=10)
             proxies = re.findall(
-                r'<td>(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})</td>[\s\S]*?<td>(\d+)</td>', r.text)
+                r'<td>(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})</td>[\s\S]*?<td>(\d+)</td>[\s\S]*?<td>(\w+)</td>', r.text)
             for proxy in proxies:
-                yield ":".join(proxy)
+                if proxy[2] != 'HTTPS':
+                    continue
+                yield proxy[0] + ':' + proxy[1]
 
     @staticmethod
     def freeProxy08():
@@ -153,16 +170,23 @@ class ProxyFetcher(object):
         for index, tr in enumerate(html_tree.xpath("//table[@class='table table-striped table-bordered']//tbody//tr")):
             if index == 0:
                 pass
+            if tr.xpath("./td/text()")[6] == 'no':
+                continue
+            if tr.xpath("./td/text()")[4] != 'anonymous':
+                continue
             yield ":".join(tr.xpath("./td/text()")[0:2]).strip()
 
     @staticmethod
     def freeProxy09(page_count=1):
         """ 免费代理库 """
         for i in range(1, page_count + 1):
-            url = 'http://ip.jiangxianli.com/?country=中国&page={}'.format(i)
+            url = 'http://ip.jiangxianli.com/?country=中国&protocol=https&page={}'.format(
+                i)
             html_tree = WebRequest().get(url, verify=False).tree
             for index, tr in enumerate(html_tree.xpath("//table//tr")):
                 if index == 0:
+                    continue
+                if tr.xpath("./td/text()")[2] != '高匿':
                     continue
                 yield ":".join(tr.xpath("./td/text()")[0:2]).strip()
 
