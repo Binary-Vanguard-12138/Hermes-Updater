@@ -120,10 +120,10 @@ class _ThreadChecker(Thread):
         if proxy.last_status:
             if self.proxy_handler.exists(proxy):
                 self.log.info(
-                    'RawProxyCheck - {}: {} exist'.format(self.name, proxy.proxy.ljust(23)))
+                    'RawProxyCheck - {}: {} exist https:{}'.format(self.name, proxy.proxy.ljust(23), proxy.https))
             else:
                 self.log.info(
-                    'RawProxyCheck - {}: {} pass'.format(self.name, proxy.proxy.ljust(23)))
+                    'RawProxyCheck - {}: {} pass https:{}'.format(self.name, proxy.proxy.ljust(23), proxy.https))
                 self.proxy_handler.put(proxy)
         else:
             self.log.info(
