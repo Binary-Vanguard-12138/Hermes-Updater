@@ -60,7 +60,7 @@ def httpTimeOutValidator(proxy):
     """ http检测超时 """
 
     proxies = {
-        "http": "http://{proxy}".format(proxy=proxy), "https": "https://{proxy}".format(proxy=proxy)}
+        "http": "{proxy}".format(proxy=proxy), "https": "{proxy}".format(proxy=proxy)}
 
     try:
         r = requests.head(conf.httpUrl, headers=HEADER,
@@ -74,19 +74,19 @@ def httpTimeOutValidator(proxy):
 def httpsTimeOutValidator(proxy):
     """https检测超时"""
     proxies = {
-        "http": "http://{proxy}".format(proxy=proxy), "https": "https://{proxy}".format(proxy=proxy)}
+        "http": "{proxy}".format(proxy=proxy), "https": "{proxy}".format(proxy=proxy)}
     try:
         r = requests.head(conf.httpsUrl, headers=HEADER, proxies=proxies,
-                          timeout=conf.verifyTimeout, verify=False)
+                          timeout=conf.verifyTimeout, verify=conf.certsPemPath)
         if r.status_code != 200:
             return False
-        r = requests.get(conf.httpsUrl, headers=HEADER, proxies=proxies,
-                         timeout=conf.verifyTimeout, verify=False)
-        if r.status_code != 200:
-            return False
-        if r.json["origin"] == conf.localIp:
+        # r = requests.get(conf.httpsUrl, headers=HEADER, proxies=proxies,
+        #                  timeout=conf.verifyTimeout, verify=conf.certsPemPath)
+        # if r.status_code != 200:
+        #     return False
+        # if r.json()["origin"] == conf.localIp:
             # return False
-            pass
+        #     pass
         return True
     except Exception as e:
         return False

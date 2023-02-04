@@ -13,7 +13,8 @@
 __author__ = 'JHao'
 
 import sys
-# from db.dbClient import DbClient
+import requests
+from db.dbClient import DbClient
 from handler.logHandler import LogHandler
 from handler.configHandler import ConfigHandler
 
@@ -35,9 +36,17 @@ def startScheduler():
 def __beforeStart():
     __showVersion()
     __showConfigure()
-    # if __checkDBConfig():
-    #     log.info('exit!')
-    #     sys.exit()
+    __downloadCerts()
+    if __checkDBConfig():
+        log.info('exit!')
+        sys.exit()
+
+
+def __downloadCerts():
+    r = requests.get("https://mkcert.org/generate/")
+    conf = ConfigHandler()
+    with open(conf.certsPemPath, "w") as f:
+        f.write(r.text)
 
 
 def __showVersion():
@@ -52,14 +61,14 @@ def __showConfigure():
     log.info("ProxyPool configure PROXY_FETCHER: %s" % conf.fetchers)
 
 
-# def __checkDBConfig():
-#     conf = ConfigHandler()
-#     db = DbClient(conf.dbConn)
-#     log.info("============ DATABASE CONFIGURE ================")
-#     log.info("DB_TYPE: %s" % db.db_type)
-#     log.info("DB_HOST: %s" % db.db_host)
-#     log.info("DB_PORT: %s" % db.db_port)
-#     log.info("DB_NAME: %s" % db.db_name)
-#     log.info("DB_USER: %s" % db.db_user)
-#     log.info("=================================================")
-#     return db.test()
+def __checkDBConfig():
+    conf = ConfigHandler()
+    db = DbClient(conf.dbConn)
+    log.info("============ DATABASE CONFIGURE ================")
+    log.info("DB_TYPE: %s" % db.db_type)
+    log.info("DB_HOST: %s" % db.db_host)
+    log.info("DB_PORT: %s" % db.db_port)
+    log.info("DB_NAME: %s" % db.db_name)
+    log.info("DB_USER: %s" % db.db_user)
+    log.info("=================================================")
+    return db.test()

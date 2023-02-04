@@ -58,6 +58,10 @@ class ConfigHandler(withMetaclass(Singleton)):
         return os.getenv("LOCAL_IP", setting.LOCAL_IP)
 
     @LazyProperty
+    def certsPemPath(self):
+        return os.getenv("CERTS_PEM_PATH", setting.CERTS_PEM_PATH)
+
+    @LazyProperty
     def verifyTimeout(self):
         return int(os.getenv("VERIFY_TIMEOUT", setting.VERIFY_TIMEOUT))
 

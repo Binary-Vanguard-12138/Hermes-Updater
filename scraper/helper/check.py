@@ -44,7 +44,7 @@ class DoValidator(object):
 
         proxy.check_count += 1
         proxy.last_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        proxy.last_status = True if (http_r and https_r) else False
+        proxy.last_status = True if http_r else False
         if http_r:
             if proxy.fail_count > 0:
                 proxy.fail_count -= 1
