@@ -132,7 +132,7 @@ class _ThreadChecker(Thread):
     def __ifUse(self, proxy):
         if proxy.last_status:
             self.log.info(
-                'UseProxyCheck - {}: {} pass'.format(self.name, proxy.proxy.ljust(23)))
+                'UseProxyCheck - {}: {} pass https:{}'.format(self.name, proxy.proxy.ljust(23), proxy.https))
             self.proxy_handler.put(proxy)
         else:
             if proxy.fail_count > self.conf.maxFailCount:
