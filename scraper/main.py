@@ -257,6 +257,9 @@ def check_product_requests(url):
         "user-agent": ua
     }
     proxies = getRandomProxy()
+    if None == proxies:
+        # Give up if fails to get proxy server
+        return False
 
     try:
         res = requests_session.head(url, headers=headers, proxies=proxies)
