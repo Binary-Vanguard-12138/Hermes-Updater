@@ -23,6 +23,7 @@ import sys
 import random
 import httpagentparser
 from helper.launcher import startScheduler
+from handler.proxyHandler import ProxyHandler
 
 logger = get_root_logger(__name__)
 
@@ -142,8 +143,11 @@ def getPlatform4UA(uas):
 
 
 def getRandomProxy():
-    # TODO: Get random proxy IP for HTTP
-    return None
+    proxy_handler = ProxyHandler()
+    proxy = proxy_handler.get(True)
+    if None == proxy:
+        return None
+    return {'http': proxy.proxy, 'https': proxy.proxy}
 
 
 USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
@@ -254,13 +258,17 @@ def check_product_requests(url):
     }
     proxies = getRandomProxy()
 
-    res = requests_session.get(url, headers=headers, proxies=proxies)
+    try:
+        res = requests_session.head(url, headers=headers, proxies=proxies)
+        main_res_status = res.status_code
+        logger.debug(str(res.status_code) + " " + str(proxies) + " " + url)
+        if 200 == res.status_code:
+            on_find_new_product(get_encoded_url(url))
+            return True
+    except Exception as e:
+        logger.error(e)
 
-    main_res_status = res.status_code
-    logger.debug(str(res.status_code) + " " + url)
-    if 403 == res.status_code:
-        return False
-    return True
+    return False
 
     js_url = 'https://d.digital.hermes/js/'
     js_headers = {
@@ -451,7 +459,7 @@ def scrape_requests(urls):
                 logger.debug(f'#{idx} {link}')
                 # check_products_image_requests(link)
                 check_product_requests(link)
-                time.sleep(randint(90, 120))
+                time.sleep(randint(9, 12))
             else:
                 time.sleep(60)
 
@@ -473,10 +481,9 @@ def schedule():
 
 
 def main():
-    startScheduler()
-    return
+    schedule()
     global g_is_running
-    df = pd.read_csv(f"data/picotan_rock.csv")
+    df = pd.read_csv(f"data/picotan_rock_new.csv")
     urls = df.iloc[:, 0].values
     logger.debug('Loaded ' + str(len(urls)) + " URLs")
 

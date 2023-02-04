@@ -45,8 +45,8 @@ def __beforeStart():
 def __downloadCerts():
     r = requests.get("https://mkcert.org/generate/")
     conf = ConfigHandler()
-    with open(conf.certsPemPath, "w") as f:
-        f.write(r.text)
+    with open(conf.certsPemPath, "wb") as f:
+        f.write(r.content)
 
 
 def __showVersion():

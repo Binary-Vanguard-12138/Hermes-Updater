@@ -11,6 +11,8 @@
 -------------------------------------------------
 """
 
+import platform
+
 BANNER = r"""
 ****************************************************************
 *** ______  ********************* ______ *********** _  ********
@@ -66,7 +68,8 @@ HTTPS_URL = "https://httpbin.org/get"
 
 LOCAL_IP = "45.126.3.252"
 
-CERTS_PEM_PATH = "/tmp/certs.pem"
+CERTS_PEM_PATH = 'C:\\Users\\User\\Downloads\\certs.pem' if platform.system(
+) == 'Windows' else "/tmp/certs.pem"
 
 # 代理验证时超时时间
 VERIFY_TIMEOUT = 10
