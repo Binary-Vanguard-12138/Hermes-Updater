@@ -7,6 +7,8 @@ import undetected_chromedriver as uc
 from undetected_chromedriver import Chrome, ChromeOptions
 from random import randint
 import time
+import datetime
+import pytz
 import os
 import pickle
 import urllib
@@ -245,6 +247,7 @@ def check_product_requests(url):
     global cookies_datadome
     global requests_session
     ua = getRandomUserAgent()
+    ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36'
     platform = getPlatform4UA(ua)
     logger.debug(f'{platform} {ua}')
 
@@ -266,10 +269,11 @@ def check_product_requests(url):
     proxies = getRandomProxy()
     if None == proxies:
         # Give up if fails to get proxy server
-        return False
+        # return False
+        pass
 
     try:
-        res = requests_session.get(
+        res = requests.get(
             url, headers=headers, proxies=proxies, timeout=20)
         main_res_status = res.status_code
         logger.debug(str(res.status_code) + " " + str(proxies) + " " + url)
@@ -474,11 +478,11 @@ def scrape_requests(urls):
             logger.error(e)
         for link in urls:
             idx += 1
-            if True == is_need_scrape():
+            if True == is_can_scrape():
                 logger.debug(f'#{idx} {link}')
                 # check_products_image_requests(link)
                 check_product_requests(link)
-                time.sleep(randint(9, 12))
+                time.sleep(randint(90, 120))
             else:
                 time.sleep(60)
 
@@ -490,8 +494,21 @@ def signal_handler(sig, frame):
         g_is_running = False
 
 
-def is_need_scrape():
-    return True
+def time_in_range(start, end, x):
+    """Return true if x is in the range [start, end]"""
+    if start <= end:
+        return start <= x <= end
+    else:
+        return start <= x or x <= end
+
+
+def is_can_scrape():
+    tz = pytz.timezone('Asia/Tokyo')
+    start_time = datetime.time(8, 0, 0)  # 8:00 AM
+    end_time = datetime.time(20, 0, 0)  # 08:00 PM
+    cur_time = datetime.datetime.now().astimezone(tz).time()
+    bRet = time_in_range(start_time, end_time, cur_time)
+    return bRet
 
 
 def schedule():
@@ -500,7 +517,7 @@ def schedule():
 
 
 def main():
-    schedule()
+    # schedule()
     global g_is_running
     df = pd.read_csv(f"data/picotan_rock_new.csv")
     urls = df.iloc[:, 0].values
