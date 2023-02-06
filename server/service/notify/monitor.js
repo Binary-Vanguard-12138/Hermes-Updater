@@ -30,18 +30,23 @@ const load_product_list = async () => {
       for (var i = 0; i < data.length; i++) {
         allItems.push(data[i][0] + "")
       }
-      console.log("exist file:")
+      logger.info(`Loaded ${allItems.length} products from list`)
     } else {
       allItems = [];
     }
   } catch (err) {
-    console.error(err)
+    logger.error(err)
   }
 }
 
 //const scrapOne = async (pos) => {  
 const _scrapOne = async () => {
-
+  const d = new Date();
+  var hours = d.getHours();
+  if (hours < 8 || hours > 20) {
+    logger.debug(`Not in working time, skipping...`);
+    return;
+  }
   var pos = 21
   var product_category_str = "人気バッグ"
   if (pos == 3) product_category_str = "エヴリン16"
@@ -50,7 +55,7 @@ const _scrapOne = async () => {
   if (pos == 29) product_category_str = "リンディミニ"
   if (pos == 32) product_category_str = "ロデオ"
 
-  var r_pos = (pos - 1) % 32 + 1
+  // var r_pos = (pos - 1) % 32 + 1
   //for(var i=0;i<allItems.length;i++){  
   //let selector = `#userSearchContainer > div > li:nth-child(${r_pos}) > a`
   try {
