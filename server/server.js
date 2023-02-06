@@ -13,6 +13,7 @@ const morgan = require("morgan");
 const connectDB = require("./config/db");
 const { INTERNAL_PORT } = require("./constants/App");
 const { isProductionEnv } = require("./helpers/env");
+const { monitorProducts } = require("./service/notify/monitor");
 
 const app = express();
 app.use(helmet());
@@ -76,6 +77,7 @@ app.on("db_ready", async () => {
             `SenseDefence Admin backend server started on port ${INTERNAL_PORT}, ${isProductionEnv()}`
         )
     );
+    monitorProducts();
 });
 
 mongoose.connection.once("open", () => {
