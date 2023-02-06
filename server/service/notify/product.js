@@ -3,7 +3,7 @@ const sendEmail = require("../../helpers/send-email");
 const { ProductModel } = require("../../models/Product");
 const { setGlobalConfig, getGlobalConfig } = require("../admin/global_config");
 const { UserModel } = require("../../models/User");
-const { getImageUrlFromProductUrl } = require("../../helpers/product");
+const { getImageUrlFromProductUrl, getProductSkuFromProductUrl } = require("../../helpers/product");
 
 async function onStartScrape() {
     logger.debug(`onStartScrape`);
@@ -21,7 +21,8 @@ async function sendEmail2Users(url) {
 
 async function onFoundNewProduct(url) {
     logger.debug(`onFoundNewProduct '${url}'`);
-    const oldProduct = await ProductModel.findOne({ url });
+    const productSku = getProductSkuFromProductUrl(url);
+    const oldProduct = await ProductModel.findOne({ url: { "$regex": productSku } });
     let isNew = false;
     if (!oldProduct) {
         const image_url = getImageUrlFromProductUrl(url);
@@ -30,7 +31,7 @@ async function onFoundNewProduct(url) {
     } else {
         const last_scraped_at = await getGlobalConfig("last_scraped_at") || Date.now();
         if (oldProduct.updated_at < last_scraped_at) {
-            // isNew = true
+            isNew = true
         }
         oldProduct.updated_at = Date.now();
         await oldProduct.save();
