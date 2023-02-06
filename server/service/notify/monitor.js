@@ -201,7 +201,7 @@ async function scrapOne() {
 }
 
 async function monitorProducts() {
-  chromePath = ("win32" === process.platform) ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe' : '/Applications/Google Chrome.app/';
+  chromePath = ("win32" === process.platform) ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe' : '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
   const browser = await puppeteer.launch({
     // args: ['--disable-infobars'],
     ignoreDefaultArgs: ["--enable-automation"],
