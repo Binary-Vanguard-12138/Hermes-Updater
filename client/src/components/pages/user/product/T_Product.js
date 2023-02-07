@@ -45,7 +45,7 @@ const headCells = [
     label: "URL",
   },
   {
-    id: "created_at",
+    id: "updated_at",
     alignment: "left",
     label: "Added Date",
   },
@@ -341,7 +341,7 @@ function EnhancedTable() {
                             padding: "8px",
                           }}
                         >
-                          {formatDate(row?.created_at)}
+                          {formatDate(row?.updated_at)}
                         </TableCell>
                         <TableCell
                           align="left"
