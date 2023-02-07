@@ -39,11 +39,28 @@ const load_product_list = async () => {
   }
 }
 
-//const scrapOne = async (pos) => {  
-const _scrapOne = async () => {
+function isTimeInRange() {
+  // 8:00 AM - 11:30 AM
+  // 6:30 PM - 10:30 PM
   const d = new Date();
   var hours = d.getHours();
-  if (hours < 8 || hours > 20) {
+  var minutes = d.getMinutes();
+  const check_val = Date.parse(`2000-01-01T${hours}:${minutes}`);
+  const start_1 = Date.parse(`2000-01-01T08:00`);
+  const end_1 = Date.parse(`2000-01-01T11:30`);
+  const start_2 = Date.parse(`2000-01-01T18:30`);
+  const end_2 = Date.parse(`2000-01-01T22:30`);
+  if (check_val > start_1 && check_val < end_1) {
+    return true;
+  }
+  if (check_val > start_2 && check_val < end_2) {
+    return true;
+  }
+  return false;
+}
+//const scrapOne = async (pos) => {  
+const _scrapOne = async () => {
+  if (false === isTimeInRange()) {
     logger.debug(`Not in working time, skipping...`);
     return;
   }
