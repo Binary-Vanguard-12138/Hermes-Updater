@@ -40,11 +40,17 @@ const load_product_list = async () => {
 }
 
 function isTimeInRange() {
-  // 8:00 AM - 11:30 AM
-  // 6:30 PM - 10:30 PM
+  // 8:00 AM - 11:30 AM GMT+9
+  // 6:30 PM - 10:30 PM GMT+9
   const d = new Date();
   var hours = d.getHours();
   var minutes = d.getMinutes();
+  if (hours < 10) {
+    hours = '0' + hours;
+  }
+  if (minutes < 10) {
+    minutes = '0' + minutes;
+  }
   const check_val = Date.parse(`2000-01-01T${hours}:${minutes}`);
   const start_1 = Date.parse(`2000-01-01T08:00`);
   const end_1 = Date.parse(`2000-01-01T11:30`);
