@@ -133,7 +133,7 @@ const _scrapOne = async () => {
       } else {
         logger.debug(`${productURL} not found`);
       }
-      await page.waitForTimeout(50000 + Math.random() * 20000)
+      await page.waitForTimeout(5000 + Math.random() * 2000)
       //setTimeout(4000 + Math.random()*4000)
     }
     //await page.waitForTimeout(500)
