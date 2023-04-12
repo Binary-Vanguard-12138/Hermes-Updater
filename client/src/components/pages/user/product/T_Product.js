@@ -341,7 +341,9 @@ function EnhancedTable() {
                             padding: "8px",
                           }}
                         >
-                          {formatDate(row?.updated_at)}
+                          {row?.updated_at
+                            ? formatDate(row?.updated_at)
+                            : formatDate(row?.created_at)}
                         </TableCell>
                         <TableCell
                           align="left"
